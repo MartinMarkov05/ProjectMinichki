@@ -1,6 +1,5 @@
 package com.company;
 
-import java.util.Objects;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -9,6 +8,7 @@ public class Main {
     static int creatingCol;
     static int mines;
     static String minesSymbol = "*";
+    static String markSymbol = "!";
 
     public static void main(String[] args) {
         gameName();
@@ -23,17 +23,19 @@ public class Main {
     public static void playGame(String[][] board) {
         boolean isPlayerPlaying = true;
         while (!isGameOver()) {
-            playRound(isPlayerPlaying, board);
-            isPlayerPlaying = !isPlayerPlaying;
+            playRound(board);
 
-            putTheMinesOnTheBoard(board);
+
         }
+
     }
 
-    public static int estimateMines() {
+    public static void estimateMines() {
         Random random = new Random();
         mines = random.nextInt(10) - 1;
-            return mines;
+        if(mines <= 0){
+            estimateMines();
+        }
     }
 
     public static void printNumberOfMines(int mines) {
@@ -44,7 +46,7 @@ public class Main {
         System.out.print("There are" + " " + Main.mines + " " + "mines on the board!");
     }
 
-    public static void playRound(boolean isPlayerPlaying, String[][] board) {
+    public static void playRound(String[][] board) {
         System.out.println();
         System.out.println("Enter 1 to OPEN a hidden square");
         System.out.println("Enter 2 to MARK a hidden square");
@@ -71,25 +73,21 @@ public class Main {
         if(row>creatingRow || col>creatingCol){
             System.out.println("There are no such coordinates");
         }else {
-           // printOne(board, row, col);
             printTheNumbers(board, row, col);
         }
 
     }
 
     public static void printTheNumbers(String[][] board, int row, int col) {
-//        int counter = 0;
-//        while (counter<=2){
-
         int counter = 0;
         for (row = 0; row < board.length; row++) {
             for ( col = 0; col < board[0].length; col++) {
-                if(row > 0 && col > 0 && board[row][col] != null){
-                    if(Objects.equals(board[row - 1][col - 1], minesSymbol) || Objects.equals(board[row - 1][col], minesSymbol) || Objects.equals(board[row - 1][col + 1], minesSymbol)){
+                if(row > 0 && col > 0){
+                    if(board[row - 1][col - 1].equals(minesSymbol)  || board[row - 1][col].equals(minesSymbol) || (board[row - 1][col + 1].equals(minesSymbol) )){
                         counter++;
-                    }else if(Objects.equals(board[row][col - 1],(minesSymbol)) || Objects.equals(board[row][col + 1],(minesSymbol))){
+                    }else if((board[row][col - 1].equals(minesSymbol)) || (board[row][col + 1].equals(minesSymbol))){
                         counter++;
-                    }else if(Objects.equals(board[row + 1][col - 1], minesSymbol) || Objects.equals(board[row + 1][col], minesSymbol) || Objects.equals(board[row + 1][col + 1], minesSymbol)){
+                    }else if((board[row + 1][col - 1].equals(minesSymbol) ) || (board[row + 1][col].equals(minesSymbol) ) || (board[row + 1][col + 1].equals(minesSymbol) )){
                         counter++;
                     }
                     board[row][col] = String.valueOf(counter);
@@ -99,23 +97,7 @@ public class Main {
         }
     }
 
-
-
-//    public static void printOne(String[][] board, int row, int col) {
-//        if (board[row - 1][col - 1].equals (minesSymbol) || board[row - 1][col].equals(minesSymbol) || board[row - 1][col + 1].equals(minesSymbol)) {
-//            board[row][col] = String.valueOf(1);
-//            printBoard(board, row, col);
-//        } else if (board[row][col - 1].equals(minesSymbol) || board[row][col + 1].equals(minesSymbol)) {
-//            board[row][col] = String.valueOf(1);
-//            printBoard(board, row, col);
-//        } else if (board[row + 1][col - 1].equals(minesSymbol) || board[row + 1][col].equals(minesSymbol) || board[row + 1][col + 1].equals(minesSymbol)) {
-//            board[row][col] = String.valueOf(1);
-//            printBoard(board, row, col);
-//        }
-//    }
-
     public static void markHiddenSquare(String[][] board) {
-        String markSymbol = "!";
         System.out.print("Enter row = ");
         int row = getNumber();
         System.out.print("Enter col = ");
@@ -147,6 +129,7 @@ public class Main {
             board[row][col] = minesSymbol;
             counter++;
         }
+        if(isGameOver())
             printBoard(board, row, col);
     }
 
@@ -157,23 +140,45 @@ public class Main {
         }
         System.out.println();
         System.out.println("Welcome! Please input two digits from 1 to 10 to create your own board.");
+        getSizesOFTheBoard();
+        String[][] board = new String[creatingRow][creatingCol];
+        estimateMines();
+        printBoard(board, creatingRow, creatingCol);
+
+
+        return board;
+    }
+
+//    public static String[][] createBoard() {
+//        String[][] board = new String[creatingRow][creatingCol];
+//        for (int i = 0; i < board.length; i++) {
+//            for (int j = 0; j < board[0].length; j++) {
+//                printTheUpperIndexes(board,creatingRow,creatingCol);
+//                printTheRows(board,creatingRow,creatingCol);
+//                board[i][j] = ".";
+//                System.out.print(board[i][j]);
+//            }
+//            System.out.println();
+//        }
+//        return board;
+//    }
+
+    public static void getSizesOFTheBoard() {
         System.out.print("Enter creatingRow = ");
         creatingRow = getNumber();
         System.out.print("Enter creatingCol = ");
         creatingCol = getNumber();
-        String[][] board = new String[creatingRow][creatingCol];
         if (creatingRow > 10 || creatingCol > 10) {
-            System.out.println("Invalid input!");
-        } else {
-            estimateMines();
+            System.out.println("Invalid input! Try again");
             System.out.println();
-            printBoard(board, creatingRow, creatingCol);
+            getSizesOFTheBoard();
         }
-        System.out.println();
-        return new String[creatingRow][creatingCol];
     }
 
     public static boolean isGameOver() {
+        if(minesSymbol.equals(markSymbol)){
+            return true;
+        }
         return false;
     }
 
@@ -187,8 +192,9 @@ public class Main {
             System.out.println("   ");
             System.out.print(" " + row + "|");
             for (col = 0; col < board[0].length; col++) {
+                board[row][col] = ".";
                 System.out.print(" ");
-                System.out.print(".");
+                System.out.print(board[row][col]);
             }
         }
         System.out.println();
